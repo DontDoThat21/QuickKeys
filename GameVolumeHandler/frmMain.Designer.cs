@@ -98,7 +98,7 @@
             // lblOr
             // 
             this.lblOr.AutoSize = true;
-            this.lblOr.Location = new System.Drawing.Point(13, 46);
+            this.lblOr.Location = new System.Drawing.Point(13, 44);
             this.lblOr.Name = "lblOr";
             this.lblOr.Size = new System.Drawing.Size(27, 13);
             this.lblOr.TabIndex = 4;
