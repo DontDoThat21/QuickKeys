@@ -142,6 +142,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "frmMain";
             this.Text = "Game Volume Handler";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
