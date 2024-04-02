@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.pnlSettings = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnExeSelect = new System.Windows.Forms.Button();
             this.lblSelectExe = new System.Windows.Forms.Label();
@@ -37,7 +38,9 @@
             this.lblExeDescription = new System.Windows.Forms.Label();
             this.btnAddToList = new System.Windows.Forms.Button();
             this.dgvMain = new System.Windows.Forms.DataGridView();
-            this.pnlSettings = new System.Windows.Forms.Panel();
+            this.ExeName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IsActive = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Delete = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMain)).BeginInit();
@@ -53,6 +56,13 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(776, 476);
             this.panel1.TabIndex = 0;
+            // 
+            // pnlSettings
+            // 
+            this.pnlSettings.Location = new System.Drawing.Point(418, 338);
+            this.pnlSettings.Name = "pnlSettings";
+            this.pnlSettings.Size = new System.Drawing.Size(355, 106);
+            this.pnlSettings.TabIndex = 6;
             // 
             // panel2
             // 
@@ -122,17 +132,35 @@
             // dgvMain
             // 
             this.dgvMain.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMain.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ExeName,
+            this.IsActive,
+            this.Delete});
             this.dgvMain.Location = new System.Drawing.Point(3, 3);
             this.dgvMain.Name = "dgvMain";
             this.dgvMain.Size = new System.Drawing.Size(773, 333);
             this.dgvMain.TabIndex = 0;
             // 
-            // pnlSettings
+            // ExeName
             // 
-            this.pnlSettings.Location = new System.Drawing.Point(418, 338);
-            this.pnlSettings.Name = "pnlSettings";
-            this.pnlSettings.Size = new System.Drawing.Size(355, 106);
-            this.pnlSettings.TabIndex = 6;
+            this.ExeName.Frozen = true;
+            this.ExeName.HeaderText = "Exe name";
+            this.ExeName.Name = "ExeName";
+            this.ExeName.ReadOnly = true;
+            // 
+            // IsActive
+            // 
+            this.IsActive.Frozen = true;
+            this.IsActive.HeaderText = "Active";
+            this.IsActive.Name = "IsActive";
+            this.IsActive.ReadOnly = true;
+            // 
+            // Delete
+            // 
+            this.Delete.Frozen = true;
+            this.Delete.HeaderText = "Delete";
+            this.Delete.Name = "Delete";
+            this.Delete.ReadOnly = true;
             // 
             // frmMain
             // 
@@ -163,6 +191,9 @@
         private System.Windows.Forms.Label lblSelectExe;
         private System.Windows.Forms.Button btnExeSelect;
         private System.Windows.Forms.Panel pnlSettings;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ExeName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IsActive;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Delete;
     }
 }
 
