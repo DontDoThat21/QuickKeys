@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -72,9 +74,17 @@ namespace GameVolumeHandler
 
         private void UnhookFocusChange()
         {
+            try
+            {
+                WinEventHook.UnhookWinEvent(_hook);
+            }
+            catch (Exception)
+            {
+
+            }
             // unhook the event
-            WinEventHook.UnhookWinEvent(_hook);
         }
+
         private void WinEventCallback(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             try
@@ -105,7 +115,7 @@ namespace GameVolumeHandler
             
         }
 
-        private void btnFileSelect_Click(object sender, EventArgs e)
+        private async void btnFileSelect_Click(object sender, EventArgs e)
         {
             string fileName;
 
@@ -117,26 +127,25 @@ namespace GameVolumeHandler
                 if (selectFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     fileName = selectFileDialog.SafeFileName;
-                    InsertExeIntoDB(fileName);
-                    LoadDBValuesToGrid();
+                    await InsertAndRefreshValues(fileName);
                 }
             }
         }
 
-        private void LoadDBValuesToGrid()
+        private async Task LoadDBValuesToGrid()
         {
             dgvMain.Rows.Clear();
 
             using (var connection = new SQLiteConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 string selectQuery = "SELECT * FROM GamesToMonitorVolume;";
                 using (var command = new SQLiteCommand(selectQuery, connection))
                 {
                     using (SQLiteDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             DataGridViewRow row = new DataGridViewRow();
 
@@ -161,30 +170,38 @@ namespace GameVolumeHandler
             }
         }
 
-        private void InsertExeIntoDB(string ExeName)
+        private async Task InsertExeIntoDB(string ExeName)
         {
+
+            string tempValidatedExeName = ExeName.ToLower().Replace(".exe", "");
+            if (ExeName == tempValidatedExeName)
+            {
+                tempValidatedExeName += ".exe";
+                ExeName = tempValidatedExeName;
+            }
+
             using (var connection = new SQLiteConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 string insertQuery = $@"INSERT INTO GamesToMonitorVolume (ExeName, IsActive) VALUES ('{ExeName}', 1);";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
             }
         }
 
-        private void DeleteExeFromDB(int Id)
+        private async Task DeleteExeFromDB(int Id)
         {
             using (var connection = new SQLiteConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 string deleteQuery = $@"DELETE FROM GamesToMonitorVolume WHERE Id = {Id}";
                 using (var command = new SQLiteCommand(deleteQuery, connection))
                 {
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
             }
         }
@@ -194,7 +211,7 @@ namespace GameVolumeHandler
 
         }        
 
-        private void dgvMain_CellClick(object sender, DataGridViewCellEventArgs e)
+        private async void dgvMain_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             int selectedRowIndex = dgvMain.SelectedCells[0].RowIndex;
             int selectedColumnIndex = dgvMain.SelectedCells[0].ColumnIndex;
@@ -210,8 +227,8 @@ namespace GameVolumeHandler
                     if (mBoxResult == DialogResult.Yes)
                     {
                         int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
-                        DeleteExeFromDB(id);
-                        LoadDBValuesToGrid();
+                        await DeleteExeFromDB(id);
+                        await LoadDBValuesToGrid();
                     }
 
                 }
@@ -226,8 +243,8 @@ namespace GameVolumeHandler
                     if (mBoxResult == DialogResult.Yes)
                     {
                         int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
-                        ToggleExeStatus(id, status);
-                        LoadDBValuesToGrid();
+                        await ToggleExeStatus(id, status);
+                        await LoadDBValuesToGrid();
                     }
 
                 }
@@ -239,7 +256,7 @@ namespace GameVolumeHandler
             
         }
 
-        private void ToggleExeStatus(int id, int status)
+        private async Task ToggleExeStatus(int id, int status)
         {
             if (status == 1)
             {
@@ -251,26 +268,42 @@ namespace GameVolumeHandler
             }
             using (var connection = new SQLiteConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 string updateQuery = $@"UPDATE GamesToMonitorVolume SET IsActive = {status} WHERE
                                         ID = {id};";
                 using (var command = new SQLiteCommand(updateQuery, connection))
                 {
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
             }
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             UnhookFocusChange();
             base.OnFormClosing(e);
+        }
+
+        private async void btnAddToList_Click(object sender, EventArgs e)
+        {
+            string fileName = txtExeName.Text.Replace(" ", "");
+            await InsertAndRefreshValues(fileName);
+        }
+
+        private async Task InsertAndRefreshValues(string fileName)
+        {
+            await InsertExeIntoDB(fileName);
+            await LoadDBValuesToGrid();
+        }
+
+        private async void txtExeName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                string fileName = txtExeName.Text.Replace(" ", "");
+                await InsertAndRefreshValues(fileName);
+            }
         }
     }    
 }

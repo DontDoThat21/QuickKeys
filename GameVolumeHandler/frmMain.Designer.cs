@@ -50,9 +50,10 @@
             // 
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Controls.Add(this.dgvMain);
-            this.panel1.Location = new System.Drawing.Point(12, 12);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(462, 449);
+            this.panel1.Size = new System.Drawing.Size(485, 468);
             this.panel1.TabIndex = 0;
             // 
             // panel2
@@ -63,9 +64,10 @@
             this.panel2.Controls.Add(this.lblOr);
             this.panel2.Controls.Add(this.txtExeName);
             this.panel2.Controls.Add(this.lblExeDescription);
-            this.panel2.Location = new System.Drawing.Point(3, 338);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 341);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(456, 108);
+            this.panel2.Size = new System.Drawing.Size(485, 127);
             this.panel2.TabIndex = 5;
             // 
             // btnExeSelect
@@ -95,6 +97,7 @@
             this.btnAddToList.TabIndex = 1;
             this.btnAddToList.Text = "Add to list";
             this.btnAddToList.UseVisualStyleBackColor = true;
+            this.btnAddToList.Click += new System.EventHandler(this.btnAddToList_Click);
             // 
             // lblOr
             // 
@@ -112,6 +115,7 @@
             this.txtExeName.Name = "txtExeName";
             this.txtExeName.Size = new System.Drawing.Size(130, 20);
             this.txtExeName.TabIndex = 2;
+            this.txtExeName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtExeName_KeyPress);
             // 
             // lblExeDescription
             // 
@@ -129,10 +133,11 @@
             this.ExeName,
             this.IsActive,
             this.Delete});
-            this.dgvMain.Location = new System.Drawing.Point(3, 3);
+            this.dgvMain.Dock = System.Windows.Forms.DockStyle.Top;
+            this.dgvMain.Location = new System.Drawing.Point(0, 0);
             this.dgvMain.MultiSelect = false;
             this.dgvMain.Name = "dgvMain";
-            this.dgvMain.Size = new System.Drawing.Size(456, 333);
+            this.dgvMain.Size = new System.Drawing.Size(485, 333);
             this.dgvMain.TabIndex = 0;
             this.dgvMain.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMain_CellClick);
             // 
