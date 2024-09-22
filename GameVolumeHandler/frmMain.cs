@@ -26,6 +26,7 @@ namespace GameVolumeHandler
 
         public frmMain()
         {
+            Console.Beep(250, 1000);
             InitializeComponent();
             HookFocusChange();
 
