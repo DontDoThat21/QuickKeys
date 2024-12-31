@@ -219,6 +219,7 @@
             this.btnMute.TabIndex = 7;
             this.btnMute.Text = "MUTE";
             this.btnMute.UseVisualStyleBackColor = false;
+            this.btnMute.Click += new System.EventHandler(this.btnMute_Click);
             // 
             // lowerHeaderPanel
             // 
