@@ -81,7 +81,7 @@ namespace GameVolumeHandler
             }
             catch (Exception)
             {
-
+                this.Dispose();
             }
             // unhook the event
         }
