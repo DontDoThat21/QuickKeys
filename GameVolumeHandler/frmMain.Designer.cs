@@ -38,13 +38,14 @@
             this.txtExeName = new System.Windows.Forms.TextBox();
             this.lblExeDescription = new System.Windows.Forms.Label();
             this.dgvMain = new System.Windows.Forms.DataGridView();
-            this.ExeName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.IsActive = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Delete = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.headerPanel = new System.Windows.Forms.Panel();
             this.topHeaderPanel = new System.Windows.Forms.Panel();
             this.btnMute = new System.Windows.Forms.Button();
             this.lowerHeaderPanel = new System.Windows.Forms.Panel();
+            this.ExeName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IsActive = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Hotkey = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Delete = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.mainPanel.SuspendLayout();
             this.inputPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMain)).BeginInit();
@@ -155,6 +156,7 @@
             this.dgvMain.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ExeName,
             this.IsActive,
+            this.Hotkey,
             this.Delete});
             this.dgvMain.GridColor = System.Drawing.Color.Black;
             this.dgvMain.Location = new System.Drawing.Point(0, 0);
@@ -163,27 +165,6 @@
             this.dgvMain.Size = new System.Drawing.Size(479, 327);
             this.dgvMain.TabIndex = 0;
             this.dgvMain.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMain_CellClick);
-            // 
-            // ExeName
-            // 
-            this.ExeName.Frozen = true;
-            this.ExeName.HeaderText = "Exe name";
-            this.ExeName.Name = "ExeName";
-            this.ExeName.ReadOnly = true;
-            // 
-            // IsActive
-            // 
-            this.IsActive.Frozen = true;
-            this.IsActive.HeaderText = "Active";
-            this.IsActive.Name = "IsActive";
-            this.IsActive.ReadOnly = true;
-            // 
-            // Delete
-            // 
-            this.Delete.Frozen = true;
-            this.Delete.HeaderText = "Delete";
-            this.Delete.Name = "Delete";
-            this.Delete.ReadOnly = true;
             // 
             // headerPanel
             // 
@@ -234,6 +215,32 @@
             this.lowerHeaderPanel.Size = new System.Drawing.Size(478, 277);
             this.lowerHeaderPanel.TabIndex = 8;
             // 
+            // ExeName
+            // 
+            this.ExeName.Frozen = true;
+            this.ExeName.HeaderText = "Exe name";
+            this.ExeName.Name = "ExeName";
+            this.ExeName.ReadOnly = true;
+            // 
+            // IsActive
+            // 
+            this.IsActive.Frozen = true;
+            this.IsActive.HeaderText = "Active";
+            this.IsActive.Name = "IsActive";
+            this.IsActive.ReadOnly = true;
+            // 
+            // Hotkey
+            // 
+            this.Hotkey.HeaderText = "Hotkey";
+            this.Hotkey.Name = "Hotkey";
+            this.Hotkey.ToolTipText = "Assign a hotkey to toggle exe\'s active state.";
+            // 
+            // Delete
+            // 
+            this.Delete.HeaderText = "Delete";
+            this.Delete.Name = "Delete";
+            this.Delete.ReadOnly = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -270,13 +277,14 @@
         private System.Windows.Forms.Button btnAddToList;
         private System.Windows.Forms.Label lblSelectExe;
         private System.Windows.Forms.Button btnExeSelect;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ExeName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IsActive;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Delete;
         private System.Windows.Forms.Panel headerPanel;
         private System.Windows.Forms.Panel topHeaderPanel;
         private System.Windows.Forms.Button btnMute;
         private System.Windows.Forms.Panel lowerHeaderPanel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ExeName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IsActive;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Hotkey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Delete;
     }
 }
 

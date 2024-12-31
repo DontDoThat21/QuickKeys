@@ -25,11 +25,17 @@ namespace GameVolumeHandler
 
         string connectionString = @"Data Source=GameVolumeHandler.db;Version=3;";
 
+        [DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
         public frmMain()
         {
-            Console.Beep(250, 1000);
             InitializeComponent();
             HookFocusChange();
+            RegisterGlobalHotkey();
 
 
             using (var connection = new SQLiteConnection(connectionString))
@@ -41,14 +47,15 @@ namespace GameVolumeHandler
                 string createTableQuery = @"CREATE TABLE IF NOT EXISTS GamesToMonitorVolume (
                                           Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                           ExeName TEXT,
-                                          IsActive INTEGER
+                                          IsActive INTEGER,
+                                          Hotkey TEXT
                                         );";
                 using (var command = new SQLiteCommand(createTableQuery, connection))
                 {
                     command.ExecuteNonQuery();
                 }
 
-                string insertTableQuery = @"INSERT INTO GamesToMonitorVolume VALUES (0, 'Gears5.exe', 1);";
+                string insertTableQuery = @"INSERT INTO GamesToMonitorVolume VALUES (0, 'gears5.exe', 1, 'UNBOUND');";
                 using (var command = new SQLiteCommand(insertTableQuery, connection))
                 {
                     try
@@ -78,6 +85,7 @@ namespace GameVolumeHandler
         {
             try
             {
+                this.Dispose();
                 WinEventHook.UnhookWinEvent(_hook);
             }
             catch (Exception)
@@ -157,8 +165,13 @@ namespace GameVolumeHandler
                             row.Cells.Add(cellExe);
 
                             DataGridViewTextBoxCell cellActiveStatus = new DataGridViewTextBoxCell();
-                            cellActiveStatus.Value = reader["IsActive"].ToString();
+                            cellActiveStatus.Value = Convert.ToBoolean(reader["IsActive"]);
+                            cellActiveStatus.Tag = reader["IsActive"].ToString();
                             row.Cells.Add(cellActiveStatus);
+
+                            DataGridViewTextBoxCell cellHotkey = new DataGridViewTextBoxCell();
+                            cellHotkey.Value = reader["Hotkey"].ToString();
+                            row.Cells.Add(cellHotkey);
 
                             DataGridViewTextBoxCell cellDelete = new DataGridViewTextBoxCell();
                             cellDelete.Value = "X";
@@ -172,23 +185,23 @@ namespace GameVolumeHandler
             }
         }
 
-        private async Task InsertExeIntoDB(string ExeName)
+        private async Task InsertExeIntoDB(string exeName)
         {
-
-            string tempValidatedExeName = ExeName.ToLower().Replace(".exe", "");
-            if (ExeName == tempValidatedExeName)
+            string tempValidatedExeName = exeName.ToLower().Replace(".exe", "");
+            if (exeName == tempValidatedExeName)
             {
                 tempValidatedExeName += ".exe";
-                ExeName = tempValidatedExeName;
+                exeName = tempValidatedExeName;
             }
 
             using (var connection = new SQLiteConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                string insertQuery = $@"INSERT INTO GamesToMonitorVolume (ExeName, IsActive) VALUES ('{ExeName}', 1);";
+                string insertQuery = "INSERT INTO GamesToMonitorVolume (ExeName, IsActive) VALUES (@ExeName, 1);";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
+                    command.Parameters.AddWithValue("@ExeName", exeName);
                     await command.ExecuteNonQueryAsync();
                 }
             }
@@ -225,7 +238,7 @@ namespace GameVolumeHandler
                 if (dgvMain.Columns[selectedColumnIndex].HeaderText == "Delete")
                 {
                     // delete option
-                    DialogResult mBoxResult = MessageBox.Show($"Delete {dgvMain[0, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Really remove this Exe?", MessageBoxButtons.YesNo);
+                    DialogResult mBoxResult = MessageBox.Show($"Remove {dgvMain[0, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Really remove this Exe?", MessageBoxButtons.YesNo);
                     if (mBoxResult == DialogResult.Yes)
                     {
                         int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
@@ -239,15 +252,15 @@ namespace GameVolumeHandler
                 {
                     // active toggle option
 
-                    int status = int.Parse(dgvMain[selectedColumnIndex, selectedRowIndex].Value.ToString());
+                    int status = int.Parse(dgvMain[selectedColumnIndex, selectedRowIndex].Tag.ToString());
 
-                    DialogResult mBoxResult = MessageBox.Show($"Toggle status of {dgvMain[0, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Toggle this Exe's active status?", MessageBoxButtons.YesNo);
-                    if (mBoxResult == DialogResult.Yes)
-                    {
+                    //DialogResult mBoxResult = MessageBox.Show($"Toggle status of {dgvMain[0, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Toggle this Exe's active status?", MessageBoxButtons.YesNo);
+                    //if (mBoxResult == DialogResult.Yes)
+                    //{
                         int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
                         await ToggleExeStatus(id, status);
                         await LoadDBValuesToGrid();
-                    }
+                    // }
 
                 }
 
@@ -295,8 +308,69 @@ namespace GameVolumeHandler
 
         private async Task InsertAndRefreshValues(string fileName)
         {
+            if (await CheckIfExeExists(fileName)) return;
             await InsertExeIntoDB(fileName);
             await LoadDBValuesToGrid();
+        }
+
+        private async Task<bool> CheckIfExeExists(string exeName)
+        {
+            string tempValidatedExeName = exeName.ToLower().Replace(".exe", "");
+            if (exeName == tempValidatedExeName)
+            {
+                tempValidatedExeName += ".exe";
+                exeName = tempValidatedExeName;
+            }
+
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string checkQuery = "SELECT COUNT(1) FROM GamesToMonitorVolume WHERE ExeName = @ExeName;";
+                using (var command = new SQLiteCommand(checkQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ExeName", exeName);
+                    return Convert.ToInt32(await command.ExecuteScalarAsync()) > 0;
+                }
+            }
+        }
+
+        private void RegisterGlobalHotkey()
+        {
+            const int MOD_ALT = 0x0001; // Alt key modifier
+            const int MOD_CONTROL = 0x0002; // Control key modifier
+            const int VK_M = 0x4D; // M key
+            const int HOTKEY_ID = 1; // Identifier for the hotkey
+
+            bool success = RegisterHotKey(this.Handle, HOTKEY_ID, MOD_CONTROL | MOD_ALT, VK_M);
+
+            if (!success)
+            {
+                MessageBox.Show("Failed to register global hotkey.");
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            UnregisterHotKey(this.Handle, 1); // HOTKEY_ID
+            base.OnFormClosing(e);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_HOTKEY = 0x0312;
+
+            if (m.Msg == WM_HOTKEY)
+            {
+                int hotkeyId = m.WParam.ToInt32();
+
+                if (hotkeyId == 1) // HOTKEY_ID
+                {
+                    _ = ToggleExeMute();
+                }
+            }
+
+            base.WndProc(ref m);
         }
 
         private async void txtExeName_KeyPress(object sender, KeyPressEventArgs e)
@@ -328,7 +402,7 @@ namespace GameVolumeHandler
                 bool isActive = Convert.ToBoolean(reader["IsActive"]);
 
                 // Mute or unmute executable
-                SetApplicationMute(exeName, isActive);
+                SetApplicationMute(exeName, isActive);           
             }
         }
 
