@@ -41,84 +41,88 @@ namespace GameVolumeHandler
             {
 
                 connection.Open();
+                PerformInitialSetup(connection);
+                LoadDBValuesToGrid();
+                connection.Close(); // using should handle this but old habits die hard i guess
+                //StartProcessMonitoring();
+            }
+            
+        }
 
-                // Creating a table if it doesn't exist
-                string createAppsTableQuery = @"CREATE TABLE IF NOT EXISTS AppsToMonitorVolume (
+        private void PerformInitialSetup(SQLiteConnection connection)
+        {
+            // Creating a table if it doesn't exist
+            string createAppsTableQuery = @"CREATE TABLE IF NOT EXISTS AppsToMonitorVolume (
                                           Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                           ExeName TEXT,
                                           IsActive INTEGER,
                                           ToggleHotkey TEXT
                                         );";
-                using (var command = new SQLiteCommand(createAppsTableQuery, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
+            using (var command = new SQLiteCommand(createAppsTableQuery, connection))
+            {
+                command.ExecuteNonQuery();
+            }
 
-                // Creating global settings table if it doesn't exist
-                string createAppSettingsTableQuery = @"CREATE TABLE IF NOT EXISTS AppSettings (
+            // Creating global settings table if it doesn't exist
+            string createAppSettingsTableQuery = @"CREATE TABLE IF NOT EXISTS AppSettings (
                                           SettingName TEXT PRIMARY KEY AUTOINCREMENT,
                                           IsActive INTEGER,
                                           SettingHotkey TEXT
                                         );";
-                using (var command = new SQLiteCommand(createAppsTableQuery, connection))
+            using (var command = new SQLiteCommand(createAppsTableQuery, connection))
+            {
+                command.ExecuteNonQuery();
+            }
+
+            string insertAppTableQuery = @"INSERT INTO AppsToMonitorVolume VALUES (0, 'chrome.exe', 1, 'UNBOUND');";
+            using (var command = new SQLiteCommand(insertAppTableQuery, connection))
+            {
+                try
                 {
                     command.ExecuteNonQuery();
                 }
-
-                string insertAppTableQuery = @"INSERT INTO AppsToMonitorVolume VALUES (0, 'chrome.exe', 1, 'UNBOUND');";
-                using (var command = new SQLiteCommand(insertAppTableQuery, connection))
+                catch // ignore dupe entry
                 {
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch // ignore dupe entry
-                    {
-                    }
-                    
                 }
 
-                string insertSetting1TableQuery = @"INSERT INTO AppSettings VALUES ('Mute all Active Status Exes', 1, 'Keys.L')";
-                using (var command = new SQLiteCommand(insertSetting1TableQuery, connection))
-                {
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch
-                    {
-                    }
-
-                }
-                string insertSetting2TableQuery = @"INSERT INTO AppSettings VALUES ('Display over other windows', 1, 'Keys.P')";
-                using (var command = new SQLiteCommand(insertSetting2TableQuery, connection))
-                {
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch
-                    {
-                    }
-
-                }
-                string insertSetting3TableQuery = @"INSERT INTO AppSettings VALUES ('Bring app to front', 1, 'Keys.O')";
-                using (var command = new SQLiteCommand(insertSetting3TableQuery, connection))
-                {
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch
-                    {
-                    }
-
-                }
-
-                LoadDBValuesToGrid();
-                //StartProcessMonitoring();
             }
-            
+
+            string insertSetting1TableQuery = @"INSERT INTO AppSettings VALUES ('Mute all Active Status Exes', 1, 'Keys.L')";
+            using (var command = new SQLiteCommand(insertSetting1TableQuery, connection))
+            {
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch
+                {
+                }
+
+            }
+            string insertSetting2TableQuery = @"INSERT INTO AppSettings VALUES ('Display over other windows', 1, 'Keys.P')";
+            using (var command = new SQLiteCommand(insertSetting2TableQuery, connection))
+            {
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch
+                {
+                }
+
+            }
+            string insertSetting3TableQuery = @"INSERT INTO AppSettings VALUES ('Bring app to front', 1, 'Keys.O')";
+            using (var command = new SQLiteCommand(insertSetting3TableQuery, connection))
+            {
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch
+                {
+                }
+
+            }
         }
 
         private void HookFocusChange()
