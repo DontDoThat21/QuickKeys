@@ -1,4 +1,4 @@
-﻿namespace GameVolumeHandler
+﻿namespace QuickKeys
 {
     partial class frmAppSettings
     {

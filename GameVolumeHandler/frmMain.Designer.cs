@@ -1,4 +1,4 @@
-﻿namespace GameVolumeHandler
+﻿namespace QuickKeys
 {
     partial class frmMain
     {
@@ -210,7 +210,7 @@
             this.lblSelectExe.Name = "lblSelectExe";
             this.lblSelectExe.Size = new System.Drawing.Size(118, 16);
             this.lblSelectExe.TabIndex = 5;
-            this.lblSelectExe.Text = "Select Game.EXE";
+            this.lblSelectExe.Text = "Select App.exe";
             // 
             // btnAddToList
             // 
@@ -276,7 +276,7 @@
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(658, 476);
             this.Name = "frmMain";
-            this.Text = "Game Volume Handler";
+            this.Text = "QuickKeys - App Volume Handler";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.mainPanel.ResumeLayout(false);

@@ -9,14 +9,14 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GameVolumeHandler
+namespace QuickKeys
 {
     public partial class frmMain : Form
     {
 
         private IntPtr _hook;
 
-        string connectionString = @"Data Source=GameVolumeHandler.db;Version=3;";
+        string connectionString = @"Data Source=QuickKeys.db;Version=3;";
 
         [DllImport("user32.dll")]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
@@ -78,7 +78,7 @@ namespace GameVolumeHandler
 
             // Creating global settings table if it doesn't exist
             string createAppSettingsTableQuery = @"CREATE TABLE IF NOT EXISTS AppSettings (
-                                          SettingName TEXT PRIMARY KEY AUTOINCREMENT,
+                                          SettingName TEXT PRIMARY KEY,
                                           IsActive INTEGER,
                                           SettingHotkey TEXT
                                         );";
@@ -163,12 +163,12 @@ namespace GameVolumeHandler
         {
             try
             {
-                // Check if the foreground window is a game executable or any specific process
+                // Check if the foreground window is a executable or any specific process
                 Process foregroundProcess = Process.GetProcessById((int)hwnd);
                 if (foregroundProcess != null && foregroundProcess.MainModule != null)
                 {
                     string foregroundProcessName = foregroundProcess.MainModule.ModuleName;
-                    // Check if the process name matches your game executable
+                    // Check if the process name matches your executable
                     if (foregroundProcessName == "chrome.exe")
                     {
                         // exe has gained focus

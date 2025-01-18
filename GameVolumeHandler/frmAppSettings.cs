@@ -3,11 +3,11 @@ using System.Data.SQLite;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GameVolumeHandler
+namespace QuickKeys
 {
     public partial class frmAppSettings : Form
     {
-        string connectionString = @"Data Source=GameVolumeHandler.db;Version=3;";
+        string connectionString = @"Data Source=QuickKeys.db;Version=3;";
         // move ths into a app.config file lol
 
         public frmAppSettings()

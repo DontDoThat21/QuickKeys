@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GameVolumeHandler.Properties
+namespace QuickKeys.Properties
 {
 
 
