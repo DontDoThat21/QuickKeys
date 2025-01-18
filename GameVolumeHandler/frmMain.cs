@@ -466,9 +466,12 @@ namespace GameVolumeHandler
             }
         }
 
-        private async void btnMute_Click(object sender, EventArgs e)
+        private async void btnAppSettings_Click(object sender, EventArgs e)
         {
-            await ToggleExeMute();
+            frmAppSettings frmAppSettings = new frmAppSettings();
+            frmAppSettings.ShowDialog();
+            // this used to be the btnAppSettings_Click temp event handler
+            //await ToggleExeMute();
         }
 
         private async Task ToggleExeMute()
@@ -526,7 +529,7 @@ namespace GameVolumeHandler
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             string keyPressed = dgvMain[e.ColumnIndex, e.RowIndex].Value.ToString();
-            SaveKeybind(keyPressed);
+            //SaveKeybind(keyPressed); todo
         }
     }    
 }

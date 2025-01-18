@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.mainPanel = new System.Windows.Forms.Panel();
             this.headerPanel = new System.Windows.Forms.Panel();
-            this.btnMute = new System.Windows.Forms.Button();
             this.lowerHeaderPanel = new System.Windows.Forms.Panel();
             this.dgvMain = new System.Windows.Forms.DataGridView();
             this.FoundExe = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -41,6 +40,7 @@
             this.AppHotkey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Delete = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.inputPanel = new System.Windows.Forms.Panel();
+            this.btnAppSettings = new System.Windows.Forms.Button();
             this.btnExeSelect = new System.Windows.Forms.Button();
             this.lblSelectExe = new System.Windows.Forms.Label();
             this.btnAddToList = new System.Windows.Forms.Button();
@@ -80,20 +80,6 @@
             this.headerPanel.Name = "headerPanel";
             this.headerPanel.Size = new System.Drawing.Size(756, 281);
             this.headerPanel.TabIndex = 6;
-            // 
-            // btnMute
-            // 
-            this.btnMute.BackColor = System.Drawing.Color.Lime;
-            this.btnMute.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMute.ForeColor = System.Drawing.Color.Black;
-            this.btnMute.Location = new System.Drawing.Point(535, 40);
-            this.btnMute.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btnMute.Name = "btnMute";
-            this.btnMute.Size = new System.Drawing.Size(88, 27);
-            this.btnMute.TabIndex = 7;
-            this.btnMute.Text = "MUTE";
-            this.btnMute.UseVisualStyleBackColor = false;
-            this.btnMute.Click += new System.EventHandler(this.btnMute_Click);
             // 
             // lowerHeaderPanel
             // 
@@ -172,7 +158,7 @@
             // 
             this.inputPanel.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.inputPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.inputPanel.Controls.Add(this.btnMute);
+            this.inputPanel.Controls.Add(this.btnAppSettings);
             this.inputPanel.Controls.Add(this.btnExeSelect);
             this.inputPanel.Controls.Add(this.lblSelectExe);
             this.inputPanel.Controls.Add(this.btnAddToList);
@@ -185,6 +171,21 @@
             this.inputPanel.Name = "inputPanel";
             this.inputPanel.Size = new System.Drawing.Size(756, 146);
             this.inputPanel.TabIndex = 5;
+            // 
+            // btnAppSettings
+            // 
+            this.btnAppSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAppSettings.BackColor = System.Drawing.Color.Lime;
+            this.btnAppSettings.Font = new System.Drawing.Font("Arial", 11F);
+            this.btnAppSettings.ForeColor = System.Drawing.Color.Black;
+            this.btnAppSettings.Location = new System.Drawing.Point(639, 52);
+            this.btnAppSettings.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.btnAppSettings.Name = "btnAppSettings";
+            this.btnAppSettings.Size = new System.Drawing.Size(104, 42);
+            this.btnAppSettings.TabIndex = 7;
+            this.btnAppSettings.Text = "App Settings";
+            this.btnAppSettings.UseVisualStyleBackColor = false;
+            this.btnAppSettings.Click += new System.EventHandler(this.btnAppSettings_Click);
             // 
             // btnExeSelect
             // 
@@ -300,7 +301,7 @@
         private System.Windows.Forms.Label lblSelectExe;
         private System.Windows.Forms.Button btnExeSelect;
         private System.Windows.Forms.Panel headerPanel;
-        private System.Windows.Forms.Button btnMute;
+        private System.Windows.Forms.Button btnAppSettings;
         private System.Windows.Forms.Panel lowerHeaderPanel;
         private System.Windows.Forms.DataGridViewTextBoxColumn FoundExe;
         private System.Windows.Forms.DataGridViewTextBoxColumn ExeName;
