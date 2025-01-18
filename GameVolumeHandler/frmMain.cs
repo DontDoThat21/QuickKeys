@@ -34,6 +34,26 @@ namespace GameVolumeHandler
         public frmMain()
         {
             InitializeComponent();
+
+            // DataGridView styling
+
+            dgvMain.ForeColor = Color.GhostWhite;
+            dgvMain.BackgroundColor = Color.Black;
+
+            dgvMain.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(31, 31, 31);
+            dgvMain.RowsDefaultCellStyle.BackColor = Color.FromArgb(13, 13, 13);
+
+            dgvMain.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(61, 61, 61);
+            dgvMain.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+
+            dgvMain.ColumnHeadersDefaultCellStyle.Font = new Font("Arial", 12, FontStyle.Bold);
+            dgvMain.DefaultCellStyle.Font = new Font("Arial", 10);
+
+            dgvMain.RowHeadersDefaultCellStyle.BackColor = Color.FromArgb(61, 61, 61);
+            dgvMain.RowHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvMain.DefaultCellStyle.SelectionBackColor = Color.FromArgb(50, 81, 82);
+            dgvMain.EnableHeadersVisualStyles = false;
+
             HookFocusChange();
             RegisterGlobalHotkey();
 
