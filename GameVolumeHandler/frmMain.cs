@@ -423,7 +423,7 @@ namespace QuickKeys
 
             if (!success)
             {
-                MessageBox.Show("Failed to register global Toggle Hotkey.");
+                MessageBox.Show("Failed to register global Hotkey.");
             }
         }
 

@@ -135,17 +135,19 @@
             // 
             this.IsActive.HeaderText = "Active";
             this.IsActive.Name = "IsActive";
+            this.IsActive.ToolTipText = "Keybind to decide whether app is affected by app settings."; 
             this.IsActive.ReadOnly = true;
             // 
             // ToggleHotkey
             // 
-            this.ToggleHotkey.HeaderText = "Toggle Hotkey";
+            this.ToggleHotkey.HeaderText = "Hotkey";
             this.ToggleHotkey.Name = "ToggleHotkey";
             this.ToggleHotkey.ToolTipText = "Assign a hotkey to toggle exe\'s active state.";
             // 
             // AppHotkey
             // 
-            this.AppHotkey.HeaderText = "App Hotkey";
+            this.AppHotkey.HeaderText = "Min/Max Hotkey";
+            this.AppHotkey.ToolTipText = "Keybind to minimize/maximize and bring app to front.";
             this.AppHotkey.Name = "AppHotkey";
             // 
             // Delete
