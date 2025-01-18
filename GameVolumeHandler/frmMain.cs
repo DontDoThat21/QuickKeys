@@ -1,20 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using NAudio.CoreAudioApi;
+﻿using NAudio.CoreAudioApi;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GameVolumeHandler
 {
