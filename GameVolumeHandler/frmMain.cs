@@ -89,7 +89,7 @@ namespace GameVolumeHandler
                                           IsActive INTEGER,
                                           SettingHotkey TEXT
                                         );";
-            using (var command = new SQLiteCommand(createAppsTableQuery, connection))
+            using (var command = new SQLiteCommand(createAppSettingsTableQuery, connection))
             {
                 command.ExecuteNonQuery();
             }
@@ -178,19 +178,18 @@ namespace GameVolumeHandler
                     // Check if the process name matches your game executable
                     if (foregroundProcessName == "chrome.exe")
                     {
-                        // game has gained focus
+                        // exe has gained focus
                         MessageBox.Show("chrome.exe focused");
                     }
                     else
                     {
-                        // Game has lost focus
+                        // exe has lost focus
                         Console.WriteLine("chrome.exe focused");
                     }
                 }
             }
             catch (Exception)
             {
-
                 //MessageBox.Show(ex.Message);
             }
             
@@ -217,6 +216,7 @@ namespace GameVolumeHandler
         {
             dgvMain.Rows.Clear();
 
+            string[] runningProcesses = GetProcesses();
             using (var connection = new SQLiteConnection(connectionString))
             {
                 await connection.OpenAsync();
@@ -230,10 +230,15 @@ namespace GameVolumeHandler
                         {
                             DataGridViewRow row = new DataGridViewRow();
 
-                            DataGridViewTextBoxCell cellExe = new DataGridViewTextBoxCell();
-                            cellExe.Value = reader["ExeName"].ToString();
-                            cellExe.Tag = reader["Id"].ToString();
-                            row.Cells.Add(cellExe);
+                            DataGridViewTextBoxCell cellExeRunning = new DataGridViewTextBoxCell();
+                            cellExeRunning.Value = runningProcesses.Contains(reader["ExeName"].ToString().ToLower().Replace(".exe", "")) ? "Yes" : "No";
+                            cellExeRunning.Tag = "Yes";
+                            row.Cells.Add(cellExeRunning);
+
+                            DataGridViewTextBoxCell cellExeName = new DataGridViewTextBoxCell();
+                            cellExeName.Value = reader["ExeName"].ToString();
+                            cellExeName.Tag = reader["Id"].ToString();
+                            row.Cells.Add(cellExeName);
 
                             DataGridViewTextBoxCell cellActiveStatus = new DataGridViewTextBoxCell();
                             cellActiveStatus.Value = Convert.ToBoolean(reader["IsActive"]);
@@ -249,11 +254,31 @@ namespace GameVolumeHandler
                             row.Cells.Add(cellDelete);
 
                             dgvMain.Rows.Add(row);
-                            //Console.WriteLine($"Id: {reader["Id"]}, Name: {reader["Name"]}, Age: {reader["Age"]}");
                         }
                     }
                 }
             }
+        }
+
+        private string[] GetProcesses()
+        {
+            List<string> processNames = new List<string>();
+
+            Process[] runningProcesses = Process.GetProcesses();
+
+            foreach (Process process in runningProcesses)
+            {
+                try
+                {
+                    processNames.Add(process.ProcessName.ToLower());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not access process {process.Id}: {ex.Message}", "Could not access process.");
+                }
+            }
+
+            return processNames.ToArray();
         }
 
         private async Task InsertExeIntoDB(string exeName)
@@ -292,10 +317,7 @@ namespace GameVolumeHandler
             }
         }
 
-        private void frmMain_Load(object sender, EventArgs e)
-        {
-
-        }        
+        private void frmMain_Load(object sender, EventArgs e) {}        
 
         private async void dgvMain_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -309,32 +331,23 @@ namespace GameVolumeHandler
                 if (dgvMain.Columns[selectedColumnIndex].HeaderText == "Delete")
                 {
                     // delete option
-                    DialogResult mBoxResult = MessageBox.Show($"Remove {dgvMain[0, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Really remove this Exe?", MessageBoxButtons.YesNo);
+                    DialogResult mBoxResult = MessageBox.Show($"Remove {dgvMain[1, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Really remove this Exe?", MessageBoxButtons.YesNo);
                     if (mBoxResult == DialogResult.Yes)
                     {
-                        int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
+                        int id = int.Parse(dgvMain[1, selectedRowIndex].Tag.ToString());
                         await DeleteExeFromDB(id);
                         await LoadDBValuesToGrid();
                     }
-
                 }
 
                 if (dgvMain.Columns[selectedColumnIndex].HeaderText == "Active")
                 {
-                    // active toggle option
-
                     int status = int.Parse(dgvMain[selectedColumnIndex, selectedRowIndex].Tag.ToString());
-
-                    //DialogResult mBoxResult = MessageBox.Show($"Toggle status of {dgvMain[0, selectedRowIndex].Value.ToString().Replace(".exe", "") + "?"}", "Toggle this Exe's active status?", MessageBoxButtons.YesNo);
-                    //if (mBoxResult == DialogResult.Yes)
-                    //{
-                        int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
-                        await ToggleExeStatus(id, status);
-                        await LoadDBValuesToGrid();
-                    // }
-
+                    
+                    int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
+                    await ToggleExeStatus(id, status);
+                    await LoadDBValuesToGrid();
                 }
-
             }
             catch
             {
@@ -510,21 +523,10 @@ namespace GameVolumeHandler
             }
         }
 
-        public enum EDataFlow
+        private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            eRender = 0, // Audio rendering (output)
-            eCapture = 1, // Audio capture (input)
-            eAll = 2, // Audio render and capture
-            EDataFlow_enum_count = 3 // Number of data flow types
-        }
-
-        // Audio role type
-        public enum ERole
-        {
-            eConsole = 0, // Console sounds
-            eMultimedia = 1, // Multimedia playback
-            eCommunications = 2, // Voice communications
-            ERole_enum_count = 3 // Number of roles
+            string keyPressed = dgvMain[e.ColumnIndex, e.RowIndex].Value.ToString();
+            SaveKeybind(keyPressed);
         }
     }    
 }
