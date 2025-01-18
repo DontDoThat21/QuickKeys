@@ -78,14 +78,38 @@ namespace GameVolumeHandler
                     
                 }
 
-                string insertSettingTableQuery = @"INSERT INTO AppSettings VALUES ('Mute all Active Status Exes', 1, 'Keys.L')";
-                using (var command = new SQLiteCommand(insertSettingTableQuery, connection))
+                string insertSetting1TableQuery = @"INSERT INTO AppSettings VALUES ('Mute all Active Status Exes', 1, 'Keys.L')";
+                using (var command = new SQLiteCommand(insertSetting1TableQuery, connection))
                 {
                     try
                     {
                         command.ExecuteNonQuery();
                     }
-                    catch // ignore dupe entry
+                    catch
+                    {
+                    }
+
+                }
+                string insertSetting2TableQuery = @"INSERT INTO AppSettings VALUES ('Display over other windows', 1, 'Keys.P')";
+                using (var command = new SQLiteCommand(insertSetting2TableQuery, connection))
+                {
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                    }
+
+                }
+                string insertSetting3TableQuery = @"INSERT INTO AppSettings VALUES ('Bring app to front', 1, 'Keys.O')";
+                using (var command = new SQLiteCommand(insertSetting3TableQuery, connection))
+                {
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch
                     {
                     }
 
