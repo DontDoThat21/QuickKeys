@@ -37,26 +37,36 @@ namespace GameVolumeHandler
             HookFocusChange();
             RegisterGlobalHotkey();
 
-
             using (var connection = new SQLiteConnection(connectionString))
             {
 
                 connection.Open();
 
                 // Creating a table if it doesn't exist
-                string createTableQuery = @"CREATE TABLE IF NOT EXISTS GamesToMonitorVolume (
+                string createAppsTableQuery = @"CREATE TABLE IF NOT EXISTS AppsToMonitorVolume (
                                           Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                           ExeName TEXT,
                                           IsActive INTEGER,
-                                          Hotkey TEXT
+                                          ToggleHotkey TEXT
                                         );";
-                using (var command = new SQLiteCommand(createTableQuery, connection))
+                using (var command = new SQLiteCommand(createAppsTableQuery, connection))
                 {
                     command.ExecuteNonQuery();
                 }
 
-                string insertTableQuery = @"INSERT INTO GamesToMonitorVolume VALUES (0, 'gears5.exe', 1, 'UNBOUND');";
-                using (var command = new SQLiteCommand(insertTableQuery, connection))
+                // Creating global settings table if it doesn't exist
+                string createAppSettingsTableQuery = @"CREATE TABLE IF NOT EXISTS AppSettings (
+                                          SettingName TEXT PRIMARY KEY AUTOINCREMENT,
+                                          IsActive INTEGER,
+                                          SettingHotkey TEXT
+                                        );";
+                using (var command = new SQLiteCommand(createAppsTableQuery, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+
+                string insertAppTableQuery = @"INSERT INTO AppsToMonitorVolume VALUES (0, 'chrome.exe', 1, 'UNBOUND');";
+                using (var command = new SQLiteCommand(insertAppTableQuery, connection))
                 {
                     try
                     {
@@ -66,6 +76,19 @@ namespace GameVolumeHandler
                     {
                     }
                     
+                }
+
+                string insertSettingTableQuery = @"INSERT INTO AppSettings VALUES ('Mute all Active Status Exes', 1, 'Keys.L')";
+                using (var command = new SQLiteCommand(insertSettingTableQuery, connection))
+                {
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch // ignore dupe entry
+                    {
+                    }
+
                 }
 
                 LoadDBValuesToGrid();
@@ -105,19 +128,19 @@ namespace GameVolumeHandler
                 {
                     string foregroundProcessName = foregroundProcess.MainModule.ModuleName;
                     // Check if the process name matches your game executable
-                    if (foregroundProcessName == "Gears5.exe")
+                    if (foregroundProcessName == "chrome.exe")
                     {
                         // game has gained focus
-                        MessageBox.Show("Gears5.exe focused");
+                        MessageBox.Show("chrome.exe focused");
                     }
                     else
                     {
                         // Game has lost focus
-                        Console.WriteLine("Gears5.exe focused");
+                        Console.WriteLine("chrome.exe focused");
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 //MessageBox.Show(ex.Message);
@@ -150,7 +173,7 @@ namespace GameVolumeHandler
             {
                 await connection.OpenAsync();
 
-                string selectQuery = "SELECT * FROM GamesToMonitorVolume;";
+                string selectQuery = "SELECT * FROM AppsToMonitorVolume;";
                 using (var command = new SQLiteCommand(selectQuery, connection))
                 {
                     using (SQLiteDataReader reader = command.ExecuteReader())
@@ -169,9 +192,9 @@ namespace GameVolumeHandler
                             cellActiveStatus.Tag = reader["IsActive"].ToString();
                             row.Cells.Add(cellActiveStatus);
 
-                            DataGridViewTextBoxCell cellHotkey = new DataGridViewTextBoxCell();
-                            cellHotkey.Value = reader["Hotkey"].ToString();
-                            row.Cells.Add(cellHotkey);
+                            DataGridViewTextBoxCell cellToggleHotkey = new DataGridViewTextBoxCell();
+                            cellToggleHotkey.Value = reader["ToggleHotkey"].ToString();
+                            row.Cells.Add(cellToggleHotkey);
 
                             DataGridViewTextBoxCell cellDelete = new DataGridViewTextBoxCell();
                             cellDelete.Value = "X";
@@ -198,7 +221,7 @@ namespace GameVolumeHandler
             {
                 await connection.OpenAsync();
 
-                string insertQuery = "INSERT INTO GamesToMonitorVolume (ExeName, IsActive) VALUES (@ExeName, 1);";
+                string insertQuery = "INSERT INTO AppsToMonitorVolume (ExeName, IsActive) VALUES (@ExeName, 1);";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
                     command.Parameters.AddWithValue("@ExeName", exeName);
@@ -213,7 +236,7 @@ namespace GameVolumeHandler
             {
                 await connection.OpenAsync();
 
-                string deleteQuery = $@"DELETE FROM GamesToMonitorVolume WHERE Id = {Id}";
+                string deleteQuery = $@"DELETE FROM AppsToMonitorVolume WHERE Id = {Id}";
                 using (var command = new SQLiteCommand(deleteQuery, connection))
                 {
                     await command.ExecuteNonQueryAsync();
@@ -285,7 +308,7 @@ namespace GameVolumeHandler
             {
                 await connection.OpenAsync();
 
-                string updateQuery = $@"UPDATE GamesToMonitorVolume SET IsActive = {status} WHERE
+                string updateQuery = $@"UPDATE AppsToMonitorVolume SET IsActive = {status} WHERE
                                         ID = {id};";
                 using (var command = new SQLiteCommand(updateQuery, connection))
                 {
@@ -326,7 +349,7 @@ namespace GameVolumeHandler
             {
                 await connection.OpenAsync();
 
-                string checkQuery = "SELECT COUNT(1) FROM GamesToMonitorVolume WHERE ExeName = @ExeName;";
+                string checkQuery = "SELECT COUNT(1) FROM AppsToMonitorVolume WHERE ExeName = @ExeName;";
                 using (var command = new SQLiteCommand(checkQuery, connection))
                 {
                     command.Parameters.AddWithValue("@ExeName", exeName);
@@ -346,7 +369,7 @@ namespace GameVolumeHandler
 
             if (!success)
             {
-                MessageBox.Show("Failed to register global hotkey.");
+                MessageBox.Show("Failed to register global Toggle Hotkey.");
             }
         }
 
@@ -392,7 +415,7 @@ namespace GameVolumeHandler
             var connection = new SQLiteConnection(connectionString);
             await connection.OpenAsync();
 
-            string selectQuery = "SELECT ExeName, IsActive FROM GamesToMonitorVolume;";
+            string selectQuery = "SELECT ExeName, IsActive FROM AppsToMonitorVolume;";
             var command = new SQLiteCommand(selectQuery, connection);
             var reader = await command.ExecuteReaderAsync();
 

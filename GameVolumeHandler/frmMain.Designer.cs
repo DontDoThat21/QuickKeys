@@ -30,6 +30,11 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.headerPanel = new System.Windows.Forms.Panel();
+            this.topHeaderPanel = new System.Windows.Forms.Panel();
+            this.btnMute = new System.Windows.Forms.Button();
+            this.lowerHeaderPanel = new System.Windows.Forms.Panel();
+            this.dgvMain = new System.Windows.Forms.DataGridView();
             this.inputPanel = new System.Windows.Forms.Panel();
             this.btnExeSelect = new System.Windows.Forms.Button();
             this.lblSelectExe = new System.Windows.Forms.Label();
@@ -37,21 +42,18 @@
             this.lblOr = new System.Windows.Forms.Label();
             this.txtExeName = new System.Windows.Forms.TextBox();
             this.lblExeDescription = new System.Windows.Forms.Label();
-            this.dgvMain = new System.Windows.Forms.DataGridView();
-            this.headerPanel = new System.Windows.Forms.Panel();
-            this.topHeaderPanel = new System.Windows.Forms.Panel();
-            this.btnMute = new System.Windows.Forms.Button();
-            this.lowerHeaderPanel = new System.Windows.Forms.Panel();
+            this.FoundExe = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ExeName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.IsActive = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Hotkey = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ToggleHotkey = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.AppHotkey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Delete = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.mainPanel.SuspendLayout();
-            this.inputPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMain)).BeginInit();
             this.headerPanel.SuspendLayout();
             this.topHeaderPanel.SuspendLayout();
             this.lowerHeaderPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMain)).BeginInit();
+            this.inputPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainPanel
@@ -64,8 +66,79 @@
             this.mainPanel.Controls.Add(this.inputPanel);
             this.mainPanel.Location = new System.Drawing.Point(0, 0);
             this.mainPanel.Name = "mainPanel";
-            this.mainPanel.Size = new System.Drawing.Size(485, 468);
+            this.mainPanel.Size = new System.Drawing.Size(650, 379);
             this.mainPanel.TabIndex = 0;
+            // 
+            // headerPanel
+            // 
+            this.headerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.headerPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.headerPanel.Controls.Add(this.topHeaderPanel);
+            this.headerPanel.Controls.Add(this.lowerHeaderPanel);
+            this.headerPanel.Location = new System.Drawing.Point(0, 0);
+            this.headerPanel.Name = "headerPanel";
+            this.headerPanel.Size = new System.Drawing.Size(648, 244);
+            this.headerPanel.TabIndex = 6;
+            // 
+            // topHeaderPanel
+            // 
+            this.topHeaderPanel.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.topHeaderPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.topHeaderPanel.Controls.Add(this.btnMute);
+            this.topHeaderPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.topHeaderPanel.Location = new System.Drawing.Point(0, 0);
+            this.topHeaderPanel.Name = "topHeaderPanel";
+            this.topHeaderPanel.Size = new System.Drawing.Size(646, 45);
+            this.topHeaderPanel.TabIndex = 7;
+            // 
+            // btnMute
+            // 
+            this.btnMute.BackColor = System.Drawing.Color.Lime;
+            this.btnMute.ForeColor = System.Drawing.Color.Black;
+            this.btnMute.Location = new System.Drawing.Point(0, 0);
+            this.btnMute.Name = "btnMute";
+            this.btnMute.Size = new System.Drawing.Size(75, 23);
+            this.btnMute.TabIndex = 7;
+            this.btnMute.Text = "MUTE";
+            this.btnMute.UseVisualStyleBackColor = false;
+            this.btnMute.Click += new System.EventHandler(this.btnMute_Click);
+            // 
+            // lowerHeaderPanel
+            // 
+            this.lowerHeaderPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lowerHeaderPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lowerHeaderPanel.Controls.Add(this.dgvMain);
+            this.lowerHeaderPanel.ForeColor = System.Drawing.Color.Black;
+            this.lowerHeaderPanel.Location = new System.Drawing.Point(0, 51);
+            this.lowerHeaderPanel.Name = "lowerHeaderPanel";
+            this.lowerHeaderPanel.Size = new System.Drawing.Size(643, 188);
+            this.lowerHeaderPanel.TabIndex = 8;
+            // 
+            // dgvMain
+            // 
+            this.dgvMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvMain.BackgroundColor = System.Drawing.SystemColors.WindowText;
+            this.dgvMain.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvMain.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.FoundExe,
+            this.ExeName,
+            this.IsActive,
+            this.ToggleHotkey,
+            this.AppHotkey,
+            this.Delete});
+            this.dgvMain.GridColor = System.Drawing.Color.Black;
+            this.dgvMain.Location = new System.Drawing.Point(0, 0);
+            this.dgvMain.MultiSelect = false;
+            this.dgvMain.Name = "dgvMain";
+            this.dgvMain.Size = new System.Drawing.Size(644, 238);
+            this.dgvMain.TabIndex = 0;
+            this.dgvMain.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMain_CellClick);
             // 
             // inputPanel
             // 
@@ -78,9 +151,9 @@
             this.inputPanel.Controls.Add(this.txtExeName);
             this.inputPanel.Controls.Add(this.lblExeDescription);
             this.inputPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.inputPanel.Location = new System.Drawing.Point(0, 339);
+            this.inputPanel.Location = new System.Drawing.Point(0, 250);
             this.inputPanel.Name = "inputPanel";
-            this.inputPanel.Size = new System.Drawing.Size(483, 127);
+            this.inputPanel.Size = new System.Drawing.Size(648, 127);
             this.inputPanel.TabIndex = 5;
             // 
             // btnExeSelect
@@ -146,74 +219,11 @@
             this.lblExeDescription.TabIndex = 3;
             this.lblExeDescription.Text = "Type EXE name (must be visible in TaskMgr.exe)";
             // 
-            // dgvMain
+            // FoundExe
             // 
-            this.dgvMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvMain.BackgroundColor = System.Drawing.SystemColors.WindowText;
-            this.dgvMain.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMain.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.ExeName,
-            this.IsActive,
-            this.Hotkey,
-            this.Delete});
-            this.dgvMain.GridColor = System.Drawing.Color.Black;
-            this.dgvMain.Location = new System.Drawing.Point(0, 0);
-            this.dgvMain.MultiSelect = false;
-            this.dgvMain.Name = "dgvMain";
-            this.dgvMain.Size = new System.Drawing.Size(479, 327);
-            this.dgvMain.TabIndex = 0;
-            this.dgvMain.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMain_CellClick);
-            // 
-            // headerPanel
-            // 
-            this.headerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.headerPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.headerPanel.Controls.Add(this.topHeaderPanel);
-            this.headerPanel.Controls.Add(this.lowerHeaderPanel);
-            this.headerPanel.Location = new System.Drawing.Point(0, 0);
-            this.headerPanel.Name = "headerPanel";
-            this.headerPanel.Size = new System.Drawing.Size(483, 333);
-            this.headerPanel.TabIndex = 6;
-            // 
-            // topHeaderPanel
-            // 
-            this.topHeaderPanel.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.topHeaderPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.topHeaderPanel.Controls.Add(this.btnMute);
-            this.topHeaderPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.topHeaderPanel.Location = new System.Drawing.Point(0, 0);
-            this.topHeaderPanel.Name = "topHeaderPanel";
-            this.topHeaderPanel.Size = new System.Drawing.Size(481, 45);
-            this.topHeaderPanel.TabIndex = 7;
-            // 
-            // btnMute
-            // 
-            this.btnMute.BackColor = System.Drawing.Color.Lime;
-            this.btnMute.ForeColor = System.Drawing.Color.Black;
-            this.btnMute.Location = new System.Drawing.Point(0, 0);
-            this.btnMute.Name = "btnMute";
-            this.btnMute.Size = new System.Drawing.Size(75, 23);
-            this.btnMute.TabIndex = 7;
-            this.btnMute.Text = "MUTE";
-            this.btnMute.UseVisualStyleBackColor = false;
-            this.btnMute.Click += new System.EventHandler(this.btnMute_Click);
-            // 
-            // lowerHeaderPanel
-            // 
-            this.lowerHeaderPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lowerHeaderPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lowerHeaderPanel.Controls.Add(this.dgvMain);
-            this.lowerHeaderPanel.ForeColor = System.Drawing.Color.Black;
-            this.lowerHeaderPanel.Location = new System.Drawing.Point(0, 51);
-            this.lowerHeaderPanel.Name = "lowerHeaderPanel";
-            this.lowerHeaderPanel.Size = new System.Drawing.Size(478, 277);
-            this.lowerHeaderPanel.TabIndex = 8;
+            this.FoundExe.Frozen = true;
+            this.FoundExe.HeaderText = "Running";
+            this.FoundExe.Name = "FoundExe";
             // 
             // ExeName
             // 
@@ -229,11 +239,18 @@
             this.IsActive.Name = "IsActive";
             this.IsActive.ReadOnly = true;
             // 
-            // Hotkey
+            // ToggleHotkey
             // 
-            this.Hotkey.HeaderText = "Hotkey";
-            this.Hotkey.Name = "Hotkey";
-            this.Hotkey.ToolTipText = "Assign a hotkey to toggle exe\'s active state.";
+            this.ToggleHotkey.Frozen = true;
+            this.ToggleHotkey.HeaderText = "Toggle Hotkey";
+            this.ToggleHotkey.Name = "ToggleHotkey";
+            this.ToggleHotkey.ToolTipText = "Assign a hotkey to toggle exe\'s active state.";
+            // 
+            // AppHotkey
+            // 
+            this.AppHotkey.Frozen = true;
+            this.AppHotkey.HeaderText = "App Hotkey";
+            this.AppHotkey.Name = "AppHotkey";
             // 
             // Delete
             // 
@@ -246,22 +263,23 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.ClientSize = new System.Drawing.Size(485, 468);
+            this.ClientSize = new System.Drawing.Size(650, 379);
             this.Controls.Add(this.mainPanel);
             this.ForeColor = System.Drawing.Color.GhostWhite;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(566, 418);
             this.Name = "frmMain";
             this.Text = "Game Volume Handler";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.mainPanel.ResumeLayout(false);
-            this.inputPanel.ResumeLayout(false);
-            this.inputPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvMain)).EndInit();
             this.headerPanel.ResumeLayout(false);
             this.topHeaderPanel.ResumeLayout(false);
             this.lowerHeaderPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvMain)).EndInit();
+            this.inputPanel.ResumeLayout(false);
+            this.inputPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -281,9 +299,11 @@
         private System.Windows.Forms.Panel topHeaderPanel;
         private System.Windows.Forms.Button btnMute;
         private System.Windows.Forms.Panel lowerHeaderPanel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FoundExe;
         private System.Windows.Forms.DataGridViewTextBoxColumn ExeName;
         private System.Windows.Forms.DataGridViewTextBoxColumn IsActive;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Hotkey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ToggleHotkey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn AppHotkey;
         private System.Windows.Forms.DataGridViewTextBoxColumn Delete;
     }
 }
