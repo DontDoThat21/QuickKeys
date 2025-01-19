@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static QuickKeys.Tools.KeysEnum;
 
 namespace QuickKeys
 {
@@ -23,6 +24,8 @@ namespace QuickKeys
 
         [DllImport("user32.dll")]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+        private int currentHotkeyId = 1;
 
         public frmMain()
         {
@@ -47,7 +50,9 @@ namespace QuickKeys
             dgvMain.DefaultCellStyle.SelectionBackColor = Color.FromArgb(50, 81, 82);
             dgvMain.EnableHeadersVisualStyles = false;
 
-            HookFocusChange();
+            dgvMain.CellEndEdit += DgvMain_CellEndEdit;
+
+            //HookFocusChange();
             RegisterGlobalHotkey();
 
             using (var connection = new SQLiteConnection(connectionString))
@@ -135,6 +140,38 @@ namespace QuickKeys
                 {
                 }
 
+            }
+        }
+
+        private void DgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            // Get the value entered in the cell
+            string keybind = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
+
+            if (!string.IsNullOrEmpty(keybind))
+            {
+                // Parse keybind into modifiers and key using the USKeys enum
+                if (TryParseKeybind(keybind, out int modifiers, out USKeys key))
+                {
+                    // Unregister the previous hotkey if needed
+                    UnregisterHotKey(this.Handle, currentHotkeyId);
+
+                    // Register the new hotkey
+                    if (RegisterHotKey(this.Handle, currentHotkeyId, modifiers, (int)key))
+                    {
+                        MessageBox.Show($"Hotkey '{keybind}' registered successfully!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to register the hotkey.");
+                    }
+
+                    currentHotkeyId++; // Increment the hotkey ID for uniqueness
+                }
+                else
+                {
+                    MessageBox.Show("Invalid keybind format. Use something like 'Ctrl+Alt+D1'.");
+                }
             }
         }
 
@@ -373,7 +410,7 @@ namespace QuickKeys
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            UnhookFocusChange();
+            //UnhookFocusChange();
             base.OnFormClosing(e);
         }
 
@@ -429,7 +466,10 @@ namespace QuickKeys
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            UnregisterHotKey(this.Handle, 1); // HOTKEY_ID
+            for (int i = 1; i <= currentHotkeyId; i++)
+            {
+                UnregisterHotKey(this.Handle, i);
+            }
             base.OnFormClosing(e);
         }
 
@@ -444,6 +484,10 @@ namespace QuickKeys
                 if (hotkeyId == 1) // HOTKEY_ID
                 {
                     _ = ToggleExeMute();
+                }
+                else if(hotkeyId>1)
+                {
+                    //MessageBox.Show("Test");
                 }
             }
 
@@ -464,7 +508,7 @@ namespace QuickKeys
             frmAppSettings frmAppSettings = new frmAppSettings();
             frmAppSettings.ShowDialog();
             // this used to be the btnAppSettings_Click temp event handler
-            //await ToggleExeMute();
+            // await ToggleExeMute();
         }
 
         private async Task ToggleExeMute()
@@ -481,7 +525,6 @@ namespace QuickKeys
                 string exeName = reader["ExeName"].ToString();
                 bool isActive = Convert.ToBoolean(reader["IsActive"]);
 
-                // Mute or unmute executable
                 SetApplicationMute(exeName, isActive);           
             }
         }
@@ -512,11 +555,55 @@ namespace QuickKeys
                     }
                     catch (Exception ex)
                     {
-                        // Handle processes that may have ended
                         Console.WriteLine($"Error accessing process: {ex.Message}");
                     }
                 }
             }
+        }
+
+        private bool TryParseKeybind(string keybind, out int modifiers, out USKeys key)
+        {
+            modifiers = 0;
+            key = USKeys.None;
+
+            string[] parts = keybind.Split('+');
+            foreach (string part in parts)
+            {
+                string trimmedPart = part.Trim();
+
+                // Check for modifiers
+                if (trimmedPart.Equals("Ctrl", StringComparison.OrdinalIgnoreCase))
+                {
+                    modifiers |= 0x0002; // MOD_CONTROL
+                }
+                else if (trimmedPart.Equals("Alt", StringComparison.OrdinalIgnoreCase))
+                {
+                    modifiers |= 0x0001; // MOD_ALT
+                }
+                else if (trimmedPart.Equals("Shift", StringComparison.OrdinalIgnoreCase))
+                {
+                    modifiers |= 0x0004; // MOD_SHIFT
+                }
+                else if (trimmedPart.Equals("Win", StringComparison.OrdinalIgnoreCase))
+                {
+                    modifiers |= 0x0008; // MOD_WIN
+                }
+                else
+                {
+                    // match the key using Keys enum
+                    if (Enum.TryParse(trimmedPart, true, out USKeys parsedKey))
+                    {
+                        key = parsedKey;
+                    }
+                    else
+                    {
+                        return false; // Invalid keybind
+                    }
+                }
+            }
+
+            // Ensure have at least one key and potential modifiers
+            return key != USKeys.None;
         }
 
         private void dgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
