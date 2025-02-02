@@ -27,6 +27,8 @@ namespace QuickKeys
 
         private int currentHotkeyId = 1;
 
+        private List<Tuple<int, string>> savedHoteys; // probably change this to a diction type is performance issues arise
+
         public frmMain()
         {
             InitializeComponent();
@@ -159,6 +161,7 @@ namespace QuickKeys
                     // Register the new hotkey
                     if (RegisterHotKey(this.Handle, currentHotkeyId, modifiers, (int)key))
                     {
+                        savedHoteys.Add(new Tuple<int, string>(currentHotkeyId, key.ToString()));
                         MessageBox.Show($"Hotkey '{keybind}' registered successfully!");
                     }
                     else
@@ -175,26 +178,26 @@ namespace QuickKeys
             }
         }
 
-        private void HookFocusChange()
-        {
-            // set up a hook to detect foreground window changes
-            WinEventHook.WinEventDelegate procDelegate = new WinEventHook.WinEventDelegate(WinEventCallback);
-            _hook = WinEventHook.SetWinEventHook(WinEventHook.EVENT_SYSTEM_FOREGROUND, WinEventHook.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, procDelegate, 0, 0, WinEventHook.WINEVENT_OUTOFCONTEXT);
-        }
-
-        private void UnhookFocusChange()
-        {
-            try
-            {
-                this.Dispose();
-                WinEventHook.UnhookWinEvent(_hook);
-            }
-            catch (Exception)
-            {
-                this.Dispose();
-            }
-            // unhook the event
-        }
+        //private void HookFocusChange()
+        //{
+        //    // set up a hook to detect foreground window changes
+        //    WinEventHook.WinEventDelegate procDelegate = new WinEventHook.WinEventDelegate(WinEventCallback);
+        //    _hook = WinEventHook.SetWinEventHook(WinEventHook.EVENT_SYSTEM_FOREGROUND, WinEventHook.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, procDelegate, 0, 0, WinEventHook.WINEVENT_OUTOFCONTEXT);
+        //}
+        //
+        //private void UnhookFocusChange()
+        //{
+        //    try
+        //    {
+        //        this.Dispose();
+        //        WinEventHook.UnhookWinEvent(_hook);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        this.Dispose();
+        //    }
+        //    // unhook the event
+        //}
 
         private void WinEventCallback(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
@@ -373,8 +376,8 @@ namespace QuickKeys
                 if (dgvMain.Columns[selectedColumnIndex].HeaderText == "Active")
                 {
                     int status = int.Parse(dgvMain[selectedColumnIndex, selectedRowIndex].Tag.ToString());
-                    
-                    int id = int.Parse(dgvMain[0, selectedRowIndex].Tag.ToString());
+                    int id = int.Parse(dgvMain[1, selectedRowIndex].Tag.ToString());
+
                     await ToggleExeStatus(id, status);
                     await LoadDBValuesToGrid();
                 }
@@ -476,6 +479,10 @@ namespace QuickKeys
         protected override void WndProc(ref Message m)
         {
             const int WM_HOTKEY = 0x0312;
+            if (savedHoteys == null)
+            {
+                savedHoteys = new List<Tuple<int, string>>();
+            }
 
             if (m.Msg == WM_HOTKEY)
             {
@@ -485,9 +492,13 @@ namespace QuickKeys
                 {
                     _ = ToggleExeMute();
                 }
-                else if(hotkeyId>1)
+                else if(hotkeyId>1) // must be a custom users hotkey?
                 {
-                    //MessageBox.Show("Test");
+                    string hotkey = savedHoteys.Where(x => x.Item1 == hotkeyId)
+                        .Select(x => x.Item2)
+                        .ToList().FirstOrDefault();
+
+                    _ = ToggleExeMuteByHotkey(hotkey);
                 }
             }
 
@@ -525,37 +536,78 @@ namespace QuickKeys
                 string exeName = reader["ExeName"].ToString();
                 bool isActive = Convert.ToBoolean(reader["IsActive"]);
 
-                SetApplicationMute(exeName, isActive);           
+                await SetApplicationMute(exeName, isActive);           
             }
         }
 
-        private void SetApplicationMute(string exeName, bool mute)
+        private async Task ToggleExeMuteByHotkey(string hotkey)
+        {
+            await SetApplicationMuteIndividual(hotkey);
+        }
+
+        private SessionCollection GetAudioSessionsList()
         {
             var enumerator = new MMDeviceEnumerator();
             var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+            return device.AudioSessionManager.Sessions;
 
-            var sessions = device.AudioSessionManager.Sessions;
+        }
+
+        private async Task SetApplicationMuteIndividual(string hotkey)
+        {
+            string exeName = "";
+            for (int i = 0; i < dgvMain.Rows.Count; i++)
+            {
+                if (dgvMain.Rows[i].Cells[3].Value.ToString().ToLower() == hotkey.ToLower())
+                {
+                    exeName = dgvMain.Rows[i].Cells[1].Value.ToString().ToLower();
+                    break;
+                }
+                
+            }
+            AudioSessionControl session = await GetAudioSession(exeName, GetAudioSessionsList());
+            session.SimpleAudioVolume.Mute = !session.SimpleAudioVolume.Mute;
+        }
+
+        private async Task<AudioSessionControl> GetAudioSession(string exeName, SessionCollection sessions)
+        {
             for (int i = 0; i < sessions.Count; i++)
             {
                 var session = sessions[i];
-                if (session.GetProcessID != 0) // Exclude system sounds
+                if (session.GetProcessID != 0) // Excludes system sounds
                 {
-                    try
+                    var process = Process.GetProcessById((int)session.GetProcessID);
+                    if (process.ProcessName.ToLower().Replace(".exe", "")
+                            .Equals(
+                            exeName.ToLower().Replace(".exe", ""),
+                            StringComparison.OrdinalIgnoreCase
+                            )
+                       )
                     {
-                        var process = Process.GetProcessById((int)session.GetProcessID);
-                        if (process.ProcessName.ToLower().Replace(".exe", "")
-                                .Equals(
-                                exeName.ToLower().Replace(".exe", ""),
-                                StringComparison.OrdinalIgnoreCase
-                                )
-                           )
-                        {
-                            session.SimpleAudioVolume.Mute = mute;
-                        }
+                        return session;
                     }
-                    catch (Exception ex)
+                }
+            }
+            return null;
+        }
+
+        private async Task SetApplicationMute(string exeName, bool mute)
+        {
+            var sessions = GetAudioSessionsList();
+            for (int i = 0; i < sessions.Count; i++)
+            {
+                var session = sessions[i];
+                if (session.GetProcessID != 0) // Excludes system sounds
+                {
+                    var process = Process.GetProcessById((int)session.GetProcessID);
+                    if (process.ProcessName.ToLower().Replace(".exe", "")
+                            .Equals(
+                            exeName.ToLower().Replace(".exe", ""),
+                            StringComparison.OrdinalIgnoreCase
+                            )
+                       )
                     {
-                        Console.WriteLine($"Error accessing process: {ex.Message}");
+                        session.SimpleAudioVolume.Mute = mute;
                     }
                 }
             }
