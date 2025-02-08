@@ -117,8 +117,8 @@
             this.dgvMain.Name = "dgvMain";
             this.dgvMain.Size = new System.Drawing.Size(751, 332);
             this.dgvMain.TabIndex = 0;
+            this.dgvMain.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvMain_CellBeginEdit);
             this.dgvMain.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMain_CellClick);
-            this.dgvMain.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMain_CellEndEdit);
             // 
             // FoundExe
             // 
@@ -135,8 +135,8 @@
             // 
             this.IsActive.HeaderText = "Active";
             this.IsActive.Name = "IsActive";
-            this.IsActive.ToolTipText = "Keybind to decide whether app is affected by app settings."; 
             this.IsActive.ReadOnly = true;
+            this.IsActive.ToolTipText = "Keybind to decide whether app is affected by app settings.";
             // 
             // ToggleHotkey
             // 
@@ -147,8 +147,8 @@
             // AppHotkey
             // 
             this.AppHotkey.HeaderText = "Min/Max Hotkey";
-            this.AppHotkey.ToolTipText = "Keybind to minimize/maximize and bring app to front.";
             this.AppHotkey.Name = "AppHotkey";
+            this.AppHotkey.ToolTipText = "Keybind to minimize/maximize and bring app to front.";
             // 
             // Delete
             // 
@@ -210,7 +210,7 @@
             this.lblSelectExe.Location = new System.Drawing.Point(4, 78);
             this.lblSelectExe.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblSelectExe.Name = "lblSelectExe";
-            this.lblSelectExe.Size = new System.Drawing.Size(118, 16);
+            this.lblSelectExe.Size = new System.Drawing.Size(100, 16);
             this.lblSelectExe.TabIndex = 5;
             this.lblSelectExe.Text = "Select App.exe";
             // 

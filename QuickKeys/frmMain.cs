@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static QuickKeys.Tools.KeysEnum;
 
 namespace QuickKeys
@@ -147,35 +148,7 @@ namespace QuickKeys
 
         private void DgvMain_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            // Get the value entered in the cell
-            string keybind = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
-
-            if (!string.IsNullOrEmpty(keybind))
-            {
-                // Parse keybind into modifiers and key using the USKeys enum
-                if (TryParseKeybind(keybind, out int modifiers, out USKeys key))
-                {
-                    // Unregister the previous hotkey if needed
-                    UnregisterHotKey(this.Handle, currentHotkeyId);
-
-                    // Register the new hotkey
-                    if (RegisterHotKey(this.Handle, currentHotkeyId, modifiers, (int)key))
-                    {
-                        savedHoteys.Add(new Tuple<int, string>(currentHotkeyId, key.ToString()));
-                        MessageBox.Show($"Hotkey '{keybind}' registered successfully!");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Failed to register the hotkey.");
-                    }
-
-                    currentHotkeyId++; // Increment the hotkey ID for uniqueness
-                }
-                else
-                {
-                    MessageBox.Show("Invalid keybind format. Use something like 'Ctrl+Alt+D1'.");
-                }
-            }
+            
         }
 
         //private void HookFocusChange()
@@ -536,7 +509,7 @@ namespace QuickKeys
                 string exeName = reader["ExeName"].ToString();
                 bool isActive = Convert.ToBoolean(reader["IsActive"]);
 
-                await SetApplicationMute(exeName, isActive);           
+                await SetApplicationMute(exeName);           
             }
         }
 
@@ -555,18 +528,18 @@ namespace QuickKeys
 
         private async Task SetApplicationMuteIndividual(string hotkey)
         {
-            string exeName = "";
+            AudioSessionControl session;
             for (int i = 0; i < dgvMain.Rows.Count; i++)
             {
                 if (dgvMain.Rows[i].Cells[3].Value.ToString().ToLower() == hotkey.ToLower())
                 {
-                    exeName = dgvMain.Rows[i].Cells[1].Value.ToString().ToLower();
+                    session = await GetAudioSession(dgvMain.Rows[i].Cells[1].Value.ToString().ToLower(),
+                        GetAudioSessionsList());
+                    session.SimpleAudioVolume.Mute = !session.SimpleAudioVolume.Mute;
                     break;
                 }
                 
             }
-            AudioSessionControl session = await GetAudioSession(exeName, GetAudioSessionsList());
-            session.SimpleAudioVolume.Mute = !session.SimpleAudioVolume.Mute;
         }
 
         private async Task<AudioSessionControl> GetAudioSession(string exeName, SessionCollection sessions)
@@ -591,7 +564,7 @@ namespace QuickKeys
             return null;
         }
 
-        private async Task SetApplicationMute(string exeName, bool mute)
+        private async Task SetApplicationMute(string exeName)
         {
             var sessions = GetAudioSessionsList();
             for (int i = 0; i < sessions.Count; i++)
@@ -607,7 +580,7 @@ namespace QuickKeys
                             )
                        )
                     {
-                        session.SimpleAudioVolume.Mute = mute;
+                        session.SimpleAudioVolume.Mute = !session.SimpleAudioVolume.Mute;
                     }
                 }
             }
@@ -662,6 +635,62 @@ namespace QuickKeys
         {
             string keyPressed = dgvMain[e.ColumnIndex, e.RowIndex].Value.ToString();
             //SaveKeybind(keyPressed); todo
+        }
+
+        private void dgvMain_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            // Get the value entered in the cell, maybe should get from db?
+            string keybind = dgvMain.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
+
+            if (!string.IsNullOrEmpty(keybind))
+            {
+                if (TryParseKeybind(keybind, out int modifiers, out USKeys key))
+                {
+                    UnregisterHotKey(this.Handle, currentHotkeyId);
+
+                    if (RegisterHotKey(this.Handle, currentHotkeyId, modifiers, (int)key))
+                    {
+                        savedHoteys.Add(new Tuple<int, string>(currentHotkeyId, key.ToString()));
+                        SaveIndividualHotkey(dgvMain.Rows[e.RowIndex].Cells[2].Value,
+                            dgvMain.Rows[e.RowIndex].Cells[2].Value?.ToString() == "ACTIVE" ? : "");
+                        //MessageBox.Show($"Hotkey '{keybind}' registered successfully!");
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to register the hotkey.");
+                    }
+
+                    currentHotkeyId++; // Increment the hotkey ID for uniqueness
+                }
+                else
+                {
+                    MessageBox.Show("Invalid keybind format. Use something like 'Ctrl+Alt+D1'.");
+                }
+            }
+        }
+
+        private async Task SaveIndividualHotkey(int id, int status)
+        {
+            if (status == 1)
+            {
+                status = 0;
+            }
+            else
+            {
+                status = 1;
+            }
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string updateQuery = $@"UPDATE AppsToMonitorVolume SET IsActive = {status} WHERE
+                                        ID = {id};";
+                using (var command = new SQLiteCommand(updateQuery, connection))
+                {
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
         }
     }    
 }
